@@ -21,42 +21,39 @@
 # Reference: https://github.com/apache/airflow/blob/main/docs/apache-airflow/start/docker-compose.yaml
 
 ---
-version: '3.7'
+version: "3.7"
 x-airflow-common:
-  &airflow-common
-  # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:|version|}
+  &airflow-common # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:|version|}
   build: .
-  environment:
-    &airflow-common-env
+  environment: &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     # For backward compatibility, with Airflow <2.3
     AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     # AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
     # AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
-    AIRFLOW__CORE__FERNET_KEY: ''
-    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-    AIRFLOW__CORE__LOAD_EXAMPLES: 'true'
-    AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
-    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+    AIRFLOW__CORE__FERNET_KEY: ""
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__LOAD_EXAMPLES: "true"
+    AIRFLOW__API__AUTH_BACKENDS: "airflow.api.auth.backend.basic_auth"
+    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: "true"
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
   volumes:
     - ${PWD}/jamwine/:/opt/airflow/
-#    - ${PWD}/jamwine/dags:/opt/airflow/dags
-#    - ${PWD}/jamwine/utils:/opt/airflow/utils
-#    - ${PWD}/jamwine/logs:/opt/airflow/logs
-#    - ${PWD}/jamwine/plugins:/opt/airflow/plugins
-#    - ${PWD}/jamwine/data/:/opt/airflow/data
-#    - ${PWD}/jamwine/config/airflow.cfg:/opt/airflow/airflow.cfg
+  #    - ${PWD}/jamwine/dags:/opt/airflow/dags
+  #    - ${PWD}/jamwine/utils:/opt/airflow/utils
+  #    - ${PWD}/jamwine/logs:/opt/airflow/logs
+  #    - ${PWD}/jamwine/plugins:/opt/airflow/plugins
+  #    - ${PWD}/jamwine/data/:/opt/airflow/data
+  #    - ${PWD}/jamwine/config/airflow.cfg:/opt/airflow/airflow.cfg
 
-#    - ${PWD}/jamwine/config/:/opt/airflow/
+  #    - ${PWD}/jamwine/config/:/opt/airflow/
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-0}"
-  depends_on:
-    &airflow-common-depends-on
+  depends_on: &airflow-common-depends-on
     postgres:
       condition: service_healthy
   env_file: .secrets
-  
+
 services:
   postgres:
     image: postgres:13
@@ -73,7 +70,7 @@ services:
       interval: 5s
       retries: 5
     restart: always
-            
+
   airflow-webserver:
     <<: *airflow-common
     command: webserver
@@ -90,12 +87,16 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    
+
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
     healthcheck:
-      test: ["CMD-SHELL", 'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"']
+      test:
+        [
+          "CMD-SHELL",
+          'airflow jobs check --job-type SchedulerJob --hostname "$${HOSTNAME}"',
+        ]
       interval: 10s
       timeout: 10s
       retries: 5
@@ -154,16 +155,22 @@ services:
           echo "   https://airflow.apache.org/docs/apache-airflow/stable/start/docker.html#before-you-begin"
           echo
         fi
-        chown -R "${AIRFLOW_UID}:0" /sources
+        mkdir -p /sources/jamwine/data /sources/jamwine/dags /sources/jamwine/plugins /sources/jamwine/utils
+        chown -R "${AIRFLOW_UID}:0" /sources/jamwine/{data,dags,plugins,utils}
+        mkdir /sources/jamwine/plugins/operators
+        touch /sources/jamwine/dags/__init__.py
+        touch /sources/jamwine/utils/__init__.py
+        touch /sources/jamwine/plugins/__init__.py
+        touch /sources/jamwine/plugins/operators/__init__.py
         exec /entrypoint airflow version
     # yamllint enable rule:line-length
     environment:
       <<: *airflow-common-env
-      _AIRFLOW_DB_UPGRADE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
+      _AIRFLOW_DB_UPGRADE: "true"
+      _AIRFLOW_WWW_USER_CREATE: "true"
       _AIRFLOW_WWW_USER_USERNAME: ${_AIRFLOW_WWW_USER_USERNAME:-airflow}
       _AIRFLOW_WWW_USER_PASSWORD: ${_AIRFLOW_WWW_USER_PASSWORD:-airflow}
-      _PIP_ADDITIONAL_REQUIREMENTS: ''
+      _PIP_ADDITIONAL_REQUIREMENTS: ""
     user: "0:0"
     volumes:
       - .:/sources
@@ -183,4 +190,3 @@ services:
 
 volumes:
   postgres-db-volume:
-  
