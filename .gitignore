@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Secrets
+.secrets
+
+# Logs
+/jamwine/logs/
