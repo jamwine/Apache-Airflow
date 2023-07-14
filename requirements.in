@@ -1,7 +1,7 @@
-beautifulsoup4==4.10.0
+# beautifulsoup4==4.10.0
 # pip-tools~=6.8
-pafy==0.5.5
-moviepy==1.0.3
-youtube_dl==2020.12.31
+# pafy==0.5.5
+# moviepy==1.0.3
+# youtube_dl==2020.12.31
 markdown2
-git+https://github.com/jamwine/Dagjoins.git
+# git+https://github.com/jamwine/Dagjoins.git

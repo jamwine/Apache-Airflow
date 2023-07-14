@@ -8,7 +8,7 @@ USER airflow
 # Install requirements
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -U pip setuptools wheel
-RUN pip install -r /requirements.txt
+RUN pip install --no-cache-dir -r /requirements.txt
 
 # Copy script for health check
 COPY ./health_check.py ./health_check.py

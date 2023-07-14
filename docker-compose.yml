@@ -6,7 +6,7 @@ x-airflow-common: &airflow-common
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
   volumes:
     - ${PWD}/jamwine/:/opt/airflow/
-    # - ${PWD}/jamwine/dags/:/home/airflow/.local/lib/python3.10/site-packages/dagjoins
+    - ${PWD}/jamwine/dags/:/home/airflow/.local/lib/python3.10/site-packages/dagjoins
   depends_on: &airflow-common-depends-on
     postgres:
       condition: service_healthy

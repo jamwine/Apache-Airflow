@@ -5,7 +5,6 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 
-
 from af_utils import set_af_variables, get_af_variable, set_xcom, get_xcom, get_all_xcoms, border_decorator
 
 default_args = {
